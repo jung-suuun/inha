@@ -1,0 +1,82 @@
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <textarea id="contents" class="form-control" rows="5" placeholder="내용을 입력하세요."></textarea>
+        <button id="write" class="btn btn-primary px-5 mt-2">리뷰등록</button>
+        <div id="div_review" class="mt-5"></div>
+    </div>
+</div>
+
+<script id="temp_review" type="x-handlebars-template">
+    {{#each .}}
+        <div style="font-size:12px;color:gray;">{{email}} | {{date}}</div>
+        <div style="white-space:pre-wrap;cursor:pointer;" class="ellipsis2 contents">{{contents}}</div>
+        <div class="text-end me-3" style="{{funHide email}}">
+            <button class="btn btn-danger btn-sm delete" id="{{id}}">삭제</button>
+        </div>
+        <hr>
+    {{/each}}
+</script>
+
+<script>
+    Handlebars.registerHelper("funHide", function(writer){
+        if(writer != email){
+            return "display:none;";
+        }
+    });
+</script>
+<script type="module">
+    import { app } from "/javascripts/config.js";
+    import { getFirestore, collection, addDoc, deleteDoc, doc }  from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+    import { onSnapshot, where, orderBy, query } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+    const db = getFirestore(app);
+    const isbn = "<%=info.isbn%>";
+
+    if(uid){
+        $("#contents").show();
+    }else{
+        $("#contents").hide();
+    }
+
+    $("#write").on("click", async function(){
+        if(uid){
+            if($("#contents").val()==""){
+                alert("리뷰 내용을 입력하세요!");
+                $("#contents").focus();
+            }else{
+                //리뷰등록
+                const contents=$("#contents").val();
+                const date = moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+                await addDoc(collection(db, "review"), {isbn, email, date, contents});
+                alert("리뷰등록성공!")
+                $("#contents").val("")
+            }
+        }else{
+            sessionStorage.setItem("target", window.location.href);
+            location.href="/users/login";
+        }
+    });
+
+
+    const q = query(collection(db, "review"), where("isbn","==",isbn), orderBy("date", "desc"));
+    onSnapshot(q, snapshot => {
+        let rows=[];
+        snapshot.forEach(row=>{
+            rows.push({id:row.id, ...row.data()});
+        });
+        const temp=Handlebars.compile($("#temp_review").html());
+        $("#div_review").html(temp(rows));
+    });
+    
+
+    $("#div_review").on("click", ".contents", function(){
+        $(this).toggleClass("ellipsis2");
+    });
+
+    $("#div_review").on("click", ".delete", function(){
+        const id=$(this).attr("id");
+        if(confirm(`${id}번 리뷰를 삭제하실래요?`)){
+            //리뷰삭제
+            deleteDoc(doc(db, `review/${id}`));
+        }
+    })
+</script>

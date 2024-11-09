@@ -1,0 +1,98 @@
+<style>
+    i {
+        color:red;
+        font-size: 30px;
+        cursor: pointer;
+    }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<div class="row my-5 justify-content-center p-3">
+    <h1 class="text-center mb-5"><%=title%></h1>
+    <div class="col-md-10 card">
+        <div class="row card-body p-3">
+            <div class="col-lg-4 mb-3 text-center">
+                <img src=<%=info.thumbnail%> width="80%">
+            </div>
+            <div class="col align-self-center">
+                <h5>
+                    <%=info.title%>
+                    <i id="heart"></i>
+                </h5>
+                <hr>
+                <div class="mb-3">ISBN: <%=info.isbn%></div>
+                <div class="mb-3">가격: <%=info.price%>원</div>
+                <div class="mb-3">저자: <%=info.authors%></div>
+                <div class="mb-3">출판사: <%=info.publisher%>원</div>
+                <div class="my-3">
+                    <button class="btn btn-success px-5 cart">장바구니</button>
+                    <button class="btn btn-warning px-5">바로구매</button>
+                </div>
+            </div>
+            <hr>
+            <div><%=info.contents%></div>
+        </div>
+    </div>
+</div>
+<%-include("review.ejs")%>
+
+<script type="module">
+    import {app} from '/javascripts/config.js'
+    //파이어베이스에 있는 사용법 복사 붙여넣기 함 cdn 주소를 적어주었다.
+    import {getDatabase, ref, set, get, onValue, remove} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+    const db = getDatabase(app); //이제 db를 사용할 수 있음
+
+    const isbn = "<%=info.isbn%>";
+    const title = "<%=info.title%>";
+    const thumbnail = "<%=info.thumbnail%>";
+    const publisher = "<%=info.publisher%>";
+    const authors = "<%=info.authors%>";
+    const contents = "<%=info.contents%>";
+    const price = "<%=info.price%>";
+    const info = {isbn, title, thumbnail, publisher, authors, contents, price};
+
+    //빈하트를 클릭한 경우
+    $("#heart").on("click", function(){
+        if($(this).attr("class")=="bi-heart"){ //빈하트
+            if(confirm("좋아요 추가?")){
+                set(ref(db, `favorite/${uid}/${isbn}`), {title});
+            }
+        }else{ //채워진 하트
+            if(confirm("좋아요 취소?")){
+                remove(ref(db, `favorite/${uid}/${isbn}`));
+            }
+        }
+    });
+    //좋아요 체크
+    onValue(ref(db, `favorite/${uid}/${isbn}`), snapshot=>{
+        //console.log(snapshot);
+        if(uid && snapshot.size==1){ //채워진하트
+            $("#heart").removeClass("bi-heart");
+            $("#heart").addClass("bi-heart-fill");
+        }else if(uid && snapshot.size==0){//빈하트
+            $("#heart").removeClass("bi-heart-fill");
+            $("#heart").addClass("bi-heart");
+        }
+    });
+
+    //장바구니를 클릭한 경우
+    $(".cart").on("click", async function(){ //동시에 실행하게 하지 않고 비동기처리를 하기 위해 async, await을 사용함.
+        if(email){
+            //현재 도서를 장바구니에 넣기
+            const ref_cart = ref(db, `cart/${uid}/${isbn}`);
+            const snapshot = await get(ref_cart); 
+            //snapshot 이라는 변수에 값이 있으면 이미 장바구니에 존재하는 도서.
+            if(snapshot.val()){
+                alert("이미 장바구니에 존재하는 도서입니다.")
+            }
+            else{
+                //await set(ref(db, `cart/${uid}/${isbn}`), info); //set은 입력, ref는 위치를 지정. db는 real timedatabase await은 비동기, 조금 기다렸다가 alert 실행
+                await set(ref_cart, info); //위에랑 같은거임 이렇게 써줘도 됨.
+                alert("장바구니에 추가!");
+            }
+        }
+        else{
+            sessionStorage.setItem("target", window.location.href); //현재주소를 저장함. 로그인 한 후에 다시 장바구니 페이지로 돌아오기 위해서
+            location.href = "/users/login";
+        }
+    })
+</script>

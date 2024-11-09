@@ -1,0 +1,129 @@
+<div>
+    <h1 class="text-center my-5"><%=title%></h1>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <form name="frm">
+                <div class="input-group">
+                    <input name="query" value="Node.js" class="form-control">
+                    <button class="btn btn-success">검색</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="div_list"></div>
+    <div class="text-center"> 
+        <button id="prev" class="btn btn-primary">이전</button>
+        <span id="page" class="mx-3">1</span>
+        <button id="next" class="btn btn-primary">다음</button>
+    </div>
+
+    <!--div_list에 출력할 템플릿을 만듬. 테이블로 출력함. 도서검색할 때 여러개가 나오기 때문에 반복은(each)를 사용함. -->
+    <!--/each는 반복문을 닫을때-->
+    <!-- thumbnail, title, price 등등은 카카오 API에서 적혀있는 documents에 변수 이름과 같이 사용해야 함.-->
+    <script id="temp_list" type="x-handlebars-template"> 
+        <table class="table table-striped table-hover">
+            {{#each documents}}
+            <tr>
+                <td><img src="{{funThumbnail thumbnail}}" width="50px"></td>
+                <td>{{title}}</td>
+                <td>{{price}}</td>
+                <td>{{authors}}</td>
+                <td width="70"><%-include('modal_book.ejs')%></td>
+                <td width="70"><button class="btn btn-success btn-sm cart" info="{{funToString @this}}">카트</button></td>
+            </tr>
+            {{/each}}
+        </table>
+    </script>
+    <script>
+        //이미지가 없을 때 내가 원하는 이미지가 출력되도록 함수 작성
+        Handlebars.registerHelper("funThumbnail", function(thumbnail){
+            if(thumbnail)
+                return thumbnail;
+            else
+                return "/images/no_image.png";
+        })
+
+        Handlebars.registerHelper("funToString", function(book){
+            return JSON.stringify(book);
+        });
+    </script>
+</div>
+<script type="module">
+    import {app} from '/javascripts/config.js'
+    import {getDatabase, ref, set, get} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+    const db = getDatabase(app);
+
+    //const query="자바";
+    let query=$(frm.query).val(); //초기값 가져오기
+    let page=1;
+    let size=5;
+    getList();
+    
+    //각 행의 카트 버튼을 클릭한 경우
+    $("#div_list").on("click", ".cart", async function(){
+        if(email){
+            //장바구니에 넣기
+            const book=JSON.parse($(this).attr("info"));
+            const ref_cart = ref(db, `cart/${uid}/${book.isbn}`);
+            const snapshot = await get(ref_cart);
+            if(snapshot.val()){
+                alert("장바구니에 이미존재합니다.");
+            }else{
+                await set(ref_cart, book);
+                alert("장바구니에 추가되었습니다.");
+            }
+        }
+        else{
+            // 돌아올 주소를 target에 저장함.
+            sessionStorage.setItem("target", window.location.href)
+            location.href = "/users/login"
+        }
+    })
+
+    //다음 버튼을 클릭한 경우
+    $("#next").on("click", function(){
+        page ++;
+        getList();
+    })
+    //이전 버튼을 클릭한 경우
+    $("#prev").on("click", function(){
+        page --;
+        getList();
+    })
+    //폼이 Submit되는 경우
+    $(frm).on("submit", function(e){
+        e.preventDefault(); //기본 이벤트를 작동하지 않도록 함
+        query = $(frm.query).val();
+        if(query == ""){
+            alert("검색어를 입력하세요!");
+        }
+        else{
+            getList();
+        }
+    })
+
+    //도서목록 함수
+    function getList(){
+        //카카오 API문서를 보면 url, query, Authorization등등 어떻게 넣어줘야 하는지 기술되어있음.
+        // $는 jquery 딸깍
+        $.ajax({
+            //get은 카카오API문서에 호출방식이 get으로 적혀있기 때문.
+            type : "get",
+            url : "https://dapi.kakao.com/v3/search/book?target=title",
+            data : {query : query, size:size, page},
+            headers: { "Authorization": "KakaoAK 54b6688221dead45827042df7e297c2d" },
+            success : function(data){ //호출 성공시 실행.
+                console.log(data);
+                const temp=Handlebars.compile($("#temp_list").html())
+                $("#div_list").html(temp(data));
+                
+                const last = Math.ceil(data.meta.pageable_count/size);
+                $("#page").html(page + "/" + last);
+                if(page==1) $("#prev").attr("disabled", true)
+                else $("#prev").attr("disabled", false)
+                if(data.meta.is_end) $("#next").attr("disabled", true)
+                else $("#next").attr("disabled", false)
+            }
+        });
+    }
+</script>

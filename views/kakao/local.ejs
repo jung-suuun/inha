@@ -1,0 +1,86 @@
+<div>
+    <h1 class="text-center my-5"><%=title%></h1>
+    <div class="row">
+        <div class="col-md-4 col-lg-3">
+            <form name="frm" class="input-group mb-2">
+                <input name="query" type="text" value="인하대학교" class="form-control">
+                <button type="submit" class="btn btn-primary">검색</button>
+            </form>
+        </div>
+    </div>
+    <div id="div_list"></div>
+    <div class="text-center">
+        <button id="prev" class="btn btn-primary px-3">이전</button>
+        <span id="page" class="mx-3">1</span>
+        <button id="next" class="btn btn-primary px-3">다음</button>
+    </div>
+    <script id="temp_list" type="x-handlebars-template">
+        <table class="table table-striped table-hover">
+            {{#each documents}}
+                <tr>
+                    <td>{{place_name}}</td>
+                    <td>{{road_address_name}}</td>
+                    <td>{{phone}}</td>
+                </tr>
+            {{/each}}
+        </table>
+    </script>
+</div>
+
+<script>
+    let query = "인하대학교";
+    let page = 1;
+    let size = 10;
+
+    getList();
+
+    $(frm).on("submit", function(e){
+        e.preventDefault();    
+        query = $(frm.query).val();
+        if(query == "") {
+            alert("검색어를 입력하세요");
+        } else {
+            getList();
+        }
+    });
+
+    // 다음 버튼을 클릭한 경우
+    $("#next").on("click", function() {
+        page++;
+        getList();
+    });
+
+     // 이전 버튼을 클릭한 경우
+     $("#prev").on("click", function() {
+        page--;
+        getList();
+    });
+
+    function getList() {
+        $.ajax({
+            type: "GET",
+            url: "https://dapi.kakao.com/v2/local/search/keyword.json",
+            headers: { "Authorization": "KakaoAK 54b6688221dead45827042df7e297c2d" },
+            data: { query, page, size },
+            success: function(data) {
+                const temp = Handlebars.compile($("#temp_list").html());
+                $("#div_list").html(temp(data));
+
+                const last = Math.ceil(data.meta.pageable_count/size);
+                $("#page").html(`${page} / ${last}`);
+
+                if (page == 1) {
+                    $("#prev").attr("disabled", true);
+                } else {
+                    $("#prev").attr("disabled", false);
+                }
+
+                if (data.meta.is_end) {
+                    $("#next").attr("disabled", true);
+                } else {
+                    $("#next").attr("disabled", false);
+                }
+            }
+        });
+    }
+</script>

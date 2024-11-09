@@ -1,0 +1,86 @@
+<style>
+    .title {
+        width: 200px;
+    }
+    .photo {
+        border-radius: 50%;
+        cursor: pointer;
+    }
+</style>
+<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<div class="my-5 row justify-content-center">
+    <h1 class="text-center mb-5">
+        <%=title%>
+    </h1>
+    <form name="frm" class="col-md-8">
+        <div class="input-group mb-3">
+            <div class="input-group-text title justify-content-center">이메일</div>
+            <input name="email" class="form-control" readonly>
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-text title justify-content-center">성명</div>
+            <input name="name" class="form-control" value="무기명">
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-text title justify-content-center">전화</div>
+            <input name="phone" class="form-control" value="010-1010-2020">
+        </div>
+        <div class="input-group mb-1">
+            <div class="input-group-text title justify-content-center">주소</div>
+            <input name="address1" class="form-control">
+            <button class="btn btn-primary px-3 search" type="button">검색</button>
+        </div>
+        <input name="address2" class="form-control">
+        <div class="text-center mt-3">
+            <button class="btn btn-primary" type="submit">정보저장</button>
+            <button class="btn btn-secondary" type="reset">저장취소</button>
+        </div>
+    </form> 
+<script type="module">
+    import {app} from '/javascripts/config.js'
+    import {getDatabase, ref, set, onValue, get} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+
+    const db = getDatabase(app);
+
+    $(frm.email).val(email);
+    $(".search").on("click", function(){
+        new daum.Postcode({
+            oncomplete: function(data){
+                if(data.buildingName != ""){
+                    $(frm.address1).val(`${data.address}(${data.buildingName})`);
+                }else{
+                    $(frm.address1).val(data.address);
+                }
+            }
+        }).open();
+    });
+
+    $(frm).on("submit", async function(e){
+        e.preventDefault();
+        if(confirm("변경된 정보를 저장하실래요?")){
+            await set(ref(db, `users/${uid}`), {
+                email: email,
+                name: $(frm.name).val(),
+                phone: $(frm.phone).val(),
+                address1:$(frm.address1).val(),
+                address2:$(frm.address2).val()
+            });
+            alert("저장완료!");
+        }
+    });
+
+    onValue(ref(db, `users/${uid}`), snapshot=>{
+        const user=snapshot.val();
+        $(frm.name).val(user.name);
+        $(frm.phone).val(user.phone);
+        $(frm.address1).val(user.address1);
+        $(frm.address2).val(user.address2);
+    });
+
+    $(frm).on("reset", function(e){
+        e.preventDefault();
+        if(confirm("변경된 정보를 취소하실래요?")){
+            location.href="/users/mypage";
+        }
+    });
+</script>
