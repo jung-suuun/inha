@@ -1,0 +1,137 @@
+<div class="my-5">
+    <h1 class="text-center">댓글관리</h1>
+    <form name="frm">
+        <textarea name="contents" class="form-control" rows="5" placeholder="내용을 입력하세요."></textarea>
+        <div class="text-end">
+            <button class="btn btn-primary btn-sm px-5 mt-2">등록</button>
+        </div>
+    </form>
+    <div id="div_reply" class="mt-5"></div>
+</div>
+<script id="temp_reply" type="x-hadlebars-template">
+    {{#each .}}
+        <div reply="{{funString @this}}" class="top1">
+            <div style="font-size:12px;color:gray;" class="top2">{{email}} | {{date}}</div>
+            <div class="view{{id}} top2">
+                <div class="contents ellipsis2 top3"  style="white-space: pre-wrap;cursor:pointer;">{{no}}. {{contents}}</div>
+                <div class="text-end mt-2 top3" style="{{funHide email}}">
+                    <button class="btn btn-outline-success btn-sm btn-update">수정</button>
+                    <button class="btn btn-outline-danger  btn-sm btn-delete">삭제</button>
+                </div>    
+            </div>
+            <div class="edit{{id}} top2" style="display:none">
+                <textarea class="form-control txtcontents" rows="5">{{contents}}</textarea>
+                <div class="text-end mt-2 top3">
+                    <button class="btn btn-outline-primary btn-sm btn-save">저장</button>
+                    <button class="btn btn-outline-secondary  btn-sm btn-cancel">취소</button>
+                </div>    
+            </div>
+        </div>    
+        <hr>
+    {{/each}}
+</script>
+<script>
+    Handlebars.registerHelper("funHide", function(writer){
+        if(email!=writer) return "display:none;"
+    });
+
+    Handlebars.registerHelper("funString", function(reply){
+        return JSON.stringify(reply)
+    });
+</script>
+<script type="module"> 
+    import {app} from '/javascripts/config.js'
+    import {getFirestore, collection, addDoc, doc, deleteDoc, setDoc}  from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+    import {query, where, orderBy, onSnapshot}  from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+    const db = getFirestore(app);
+    const bid = "<%=id%>";
+
+
+    const q = query(collection(db, "reply"), where("bid", "==", bid), orderBy("date", "desc"));
+    onSnapshot(q, snapshot=>{
+        const rows=[];
+        let no=1;
+        snapshot.forEach(row=>{
+            rows.push({no:no++, id:row.id, ...row.data()});
+        });
+        const temp=Handlebars.compile($("#temp_reply").html());
+        $("#div_reply").html(temp(rows));
+    });
+
+    $("#div_reply").on("click", ".contents", function(){
+        $(this).toggleClass("ellipsis2");
+    });
+
+
+    //각행의 삭제 버튼을 클릭한 경우
+    $("#div_reply").on("click", ".btn-delete", function(){
+        const top1=$(this).parent().parent().parent();
+        const reply = JSON.parse(top1.attr("reply"));
+        if(confirm(`${reply.id} 댓글을 삭제하실래요?`)){
+            deleteDoc(doc(db, `reply/${reply.id}`));
+        }
+    });
+
+    //각행의 수정 버튼을 클릭한 경우
+    $("#div_reply").on("click", ".btn-update", function(){
+        const top1=$(this).parent().parent().parent();
+        const reply=JSON.parse(top1.attr("reply"));
+        $(".view" + reply.id).hide();
+        $(".edit" + reply.id).show();
+        top1.find(".btn-save").attr("disabled", true);
+    });
+
+    //각행의 취소 버튼을 클릭한 경우
+    $("#div_reply").on("click", ".btn-cancel", async function(){
+        const top1=$(this).parent().parent().parent();
+        const reply=JSON.parse(top1.attr("reply"));
+        const contents = top1.find(".txtcontents");
+        contents.val(reply.contents);
+        $(".view" + reply.id).show();
+        $(".edit" + reply.id).hide();
+    });
+
+    //각행의 저장 버튼을 클릭한 경우
+    $("#div_reply").on("click", ".btn-save", async function(){
+        const top1=$(this).parent().parent().parent();
+        const reply=JSON.parse(top1.attr("reply"));
+        const contents = top1.find(".txtcontents");
+        if(reply.contents != contents.val()){
+            await setDoc(doc(db, `reply/${reply.id}`), {...reply, contents:contents.val()})
+        }
+        $(".view" + reply.id).show();
+        $(".edit" + reply.id).hide();
+    });
+
+    //각행의 내용이 변경된 경우
+    $("#div_reply").on("keyup", ".txtcontents", function(){
+        const top1=$(this).parent().parent();
+        const reply=JSON.parse(top1.attr("reply"));
+        if(reply.contents != $(this).val()) {
+            top1.find(".btn-save").attr("disabled", false);
+        }else{
+            top1.find(".btn-save").attr("disabled", true);
+        }
+    });
+
+    //댓글등록 버튼을 클릭한 경우
+    $(frm).on("submit", async function(e){
+        e.preventDefault();
+        if(email){
+            //댓글등록
+            const contents=$(frm.contents).val();
+            if(contents==""){
+                alert("댓글 내용을 입력하세요!");
+                $(frm.contents).focus();
+            }else{
+                const date=moment(new Date()).format("YYYY-MM-DD HH:mm:ss");
+                const reply={bid, email, contents, date};
+                await addDoc(collection(db, "reply"), reply);
+                $(frm.contents).val("");
+            }
+        }else{
+            sessionStorage.setItem("target", window.location.href);
+            location.href="/users/login";
+        }
+    });
+</script>

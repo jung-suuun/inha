@@ -1,4 +1,5 @@
 <div class="row my-5 justify-content-center">
+    <!-- 스몰일때는 10칸, 미들은 6칸, 라지는 4칸으로 해상도에 따라서 반응형 웹이 구성되도록 설정함 -->
     <div class="col-10 col-md-6 col-lg-4">
         <div class="card">
             <div class="card-header">
@@ -6,8 +7,10 @@
             </div>
             <div class="card-body">
                 <form name="frm">
-                    <input type="text" class="form-control mb-3" name="email" value="blue@test.com">
-                    <input type="password" class="form-control mb-3" name="pass" value="12341234">
+                    <input class="form-control mb-3" name="email" value="blue@test.com">
+                    <!-- 가리고 싶을 때 type을 password로 함 -->
+                    <input class="form-control mb-3" type="password" name="pass" value="12341234">
+                    <!-- form 안에 있는 버튼은 submit 버튼임 -->
                     <button class="btn btn-primary w-100">회원가입</button>
                 </form>
                 <div class="text-end mt-3">
@@ -17,28 +20,30 @@
         </div>
     </div>
 </div>
-<script type="module">
-    // import { app } from '/javascripts/config.js' 
-    // import { getAuth, createUserWithEmailAndPasswords } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
-    // const auth = getAuth(app);
 
-    import {app} from '/javascripts/config.js';
-    import {getAuth,  createUserWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+<!-- config의 const app을 가져와서 쓰기 위함 -->
+ <!-- import를 쓰기 위해서 type이 module로 되어있어야 함 -->
+<script type="module">
+    import {app} from '/javascripts/config.js'
+    //파이어베이스에 있는 사용법 복사 붙여넣기 함 cdn 주소를 적어주었다.
+    import {getAuth, createUserWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
     const auth = getAuth(app);
 
-    // 회원가입 버튼을 클릭한 경우
-    $(frm).on("submit", function(e) {
-        e.preventDefault();
-        const email = $(frm.email).val();
-        const pass = $(frm.pass).val();
-
-        createUserWithEmailAndPassword(auth, email, pass)
-        .then((userCredential) => {
+    //회원가입 버튼을 클릭한 경우
+    $(frm).on("submit", function(e){
+        e.preventDefault(); //submit을 막음
+        const email=$(frm.email).val();
+        const pass=$(frm.pass).val();
+        //자바스크립트에서 오류가 났을 때 catch
+        createUserWithEmailAndPassword(auth, email, pass).then(success=>{
             alert("회원가입 성공!");
+            
+            //이동할때는 location
             location.href = "/users/login";
-        })
-        .catch((error) => {
+
+        }).catch(error=>{
             alert("회원가입 실패!" + error.message);
-        });
-    });
+        })
+        
+    })
 </script>

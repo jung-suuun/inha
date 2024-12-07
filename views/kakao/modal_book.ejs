@@ -1,5 +1,6 @@
 <!-- Button trigger modal -->
-<button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop{{@index}}">
+ <!-- 처음것만 출력하므로 수정해줘야함 {{@index}}를 해주면 각 책에 대한 정보를 출력할 수 있음 -->
+<button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop{{@index}}"> 
     정보
 </button>
 
@@ -9,13 +10,13 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="staticBackdropLabel">Modal title</h1>
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">도서정보</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="row">
                     <div class="col-4">
-                        <img src="{{funThumbnail thumbnail}}" width="100%">
+                        <img src="{{thumbnail}}" width="100%">
                     </div>
                     <div class="col">
                         <h5>{{title}}</h5>
@@ -32,6 +33,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <!-- <button type="button" class="btn btn-primary">Understood</button> -->
             </div>
         </div>
     </div>

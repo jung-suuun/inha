@@ -1,4 +1,4 @@
-  var express = require('express');
+var express = require('express');
 var router = express.Router();
 
 /* GET users listing. */
@@ -22,7 +22,7 @@ router.get('/cart', function(req, res, next) {
   res.render('index', { title: '장바구니', pageName:'users/cart.ejs' });
 });
 
-//마이페이지 라우터
+// 마이페이지 라우터
 router.get('/mypage', function(req, res, next) {
   res.render('index', { title: '마이페이지', pageName:'users/mypage.ejs' });
 });

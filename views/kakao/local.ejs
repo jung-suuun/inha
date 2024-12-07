@@ -1,9 +1,11 @@
 <div>
-    <h1 class="text-center my-5"><%=title%></h1>
+    <h1 class="text-center my-5"><%=title%></h1> 
     <div class="row">
+        <!-- 부트스트랩은 반응형이라서 창 크기에 따라서 갚이 바뀌도록 할 수 있음 -->
         <div class="col-md-4 col-lg-3">
             <form name="frm" class="input-group mb-2">
-                <input name="query" type="text" value="인하대학교" class="form-control">
+                <input name="query" value="인하대학교" class="form-control">
+                <!-- type은 기본적으로 submit이다. -->
                 <button type="submit" class="btn btn-primary">검색</button>
             </form>
         </div>
@@ -14,7 +16,8 @@
         <span id="page" class="mx-3">1</span>
         <button id="next" class="btn btn-primary px-3">다음</button>
     </div>
-    <script id="temp_list" type="x-handlebars-template">
+    <!-- 출력할 템플릿 만들기 -->
+     <script id="temp_list" type="x-handlebars-template">
         <table class="table table-striped table-hover">
             {{#each documents}}
                 <tr>
@@ -24,60 +27,70 @@
                 </tr>
             {{/each}}
         </table>
-    </script>
+     </script>
 </div>
 
+<!-- 데이터 가져오기, 이벤트처리-->
 <script>
-    let query = "인하대학교";
+    let query="인하대학교" //query는 정해져있는 변수 명임.
     let page = 1;
     let size = 10;
-
+    
     getList();
 
-    $(frm).on("submit", function(e){
-        e.preventDefault();    
-        query = $(frm.query).val();
-        if(query == "") {
+    //#은 id, selector는 $, name을 선택할때는 그냥 사용
+
+    //다음, 이전버튼 클릭했을 때
+    $("#next").on("click", function(){
+        page ++;
+        getList();
+    });
+    $("#prev").on("click", function(){
+        page --;
+        getList();
+    });
+
+    //frm이 submit될 때 어떻게 할지 정함
+    $(frm).on("submit",function(e){
+        e.preventDefault(); //기본 이벤트를 막으라는 의미
+        query = $(frm.query).val(); //버튼이 눌렸을 때 form안에 있는 값을 query 변수에 넣어줌
+        if(query==""){
             alert("검색어를 입력하세요");
-        } else {
+        }
+        else{
             getList();
         }
     });
 
-    // 다음 버튼을 클릭한 경우
-    $("#next").on("click", function() {
-        page++;
-        getList();
-    });
-
-     // 이전 버튼을 클릭한 경우
-     $("#prev").on("click", function() {
-        page--;
-        getList();
-    });
-
-    function getList() {
+    function getList(){
+        //전체페이지를 리로드 하지 않고 필요한 데이터만 불러옴
         $.ajax({
-            type: "GET",
-            url: "https://dapi.kakao.com/v2/local/search/keyword.json",
-            headers: { "Authorization": "KakaoAK 54b6688221dead45827042df7e297c2d" },
-            data: { query, page, size },
-            success: function(data) {
-                const temp = Handlebars.compile($("#temp_list").html());
+            type : "get",
+            url : "https://dapi.kakao.com/v2/local/search/keyword.json",
+            data : {query, page, size},
+            headers : {
+                "Authorization" : "KakaoAK 0b91218c084a28358b5d595792a6932d"
+            },
+            success:function(data){
+                console.log(data);
+                const temp = Handlebars.compile($("#temp_list").html()) //html로 컴파일 하겠다는 의미
                 $("#div_list").html(temp(data));
-
                 const last = Math.ceil(data.meta.pageable_count/size);
-                $("#page").html(`${page} / ${last}`);
+                // ``은 자바스크립트에서 사용하는 백틱, python의 f'{}'과 비슷함
+                $("#page").html(`${page}/${last}`);
 
-                if (page == 1) {
+                if(page==1){
+                    //att는 속성
                     $("#prev").attr("disabled", true);
-                } else {
+                }
+                else{
                     $("#prev").attr("disabled", false);
                 }
 
-                if (data.meta.is_end) {
+                if(data.meta.is_end){
                     $("#next").attr("disabled", true);
-                } else {
+                }
+                else{
                     $("#next").attr("disabled", false);
                 }
             }

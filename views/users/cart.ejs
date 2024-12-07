@@ -1,7 +1,7 @@
 <div class="my-5">
     <h1 class="text-center mb-5"><%=title%></h1>
     <div id="div_list"></div>
-    <script id="temp_list" type="x-handlebars-templte">
+    <script id="temp_list" type="x-handlebars-template">
         <table class="table">
             {{#each .}}
                 <tr>
@@ -13,25 +13,31 @@
         </table>
     </script>
 </div>
-<script type="module">
-    import { app } from '/javascripts/config.js' 
-    import { getDatabase, onValue, ref, remove } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
-    const db = getDatabase(app);
 
-    // 삭제 버튼을 클릭한 경우
+<script type="module">
+    import {app} from '/javascripts/config.js'
+    //파이어베이스에 있는 사용법 복사 붙여넣기 함 cdn 주소를 적어주었다.
+    import {getDatabase, onValue, ref, remove} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js"; //onValue는 데이터베이스에 있는 값을 가져오기 위함
+    const db = getDatabase(app); //이제 db를 사용할 수 있음
+    
+    //삭제버튼을 클릭한경우
     $("#div_list").on("click", ".delete", function(){
-        const isbn = $(this).attr("isbn");
-        if(confirm(`${isbn} 도서를 삭제하시겠습니까?`)) {
+        const isbn=$(this).attr("isbn");
+        if(confirm(`${isbn} 도서를 삭제하실래요?`)){
             remove(ref(db, `cart/${uid}/${isbn}`));
         }
     });
 
-
-    onValue(ref(db, `cart/${uid}`), snapshot => {
+    //장바구니 목록
+    onValue(ref(db, `cart/${uid}`), snapshot=>{
+        //snapshot 에는 가져온 정보가 있음
+        //console.log(snapshot);
         let rows = [];
-        snapshot.forEach(row =>{
-            rows.push({ key: row.key, ...row.val() });
+        //반복문을 통해 snapshot에 있는 데이터 한개씩을 rows 배열에 넣어줌
+        snapshot.forEach(row=>{
+            rows.push({...row.val()}); //... 은 value 값을 복사한다는 의미
         });
+        //console.log(rows);
         const temp = Handlebars.compile($("#temp_list").html());
         $("#div_list").html(temp(rows));
     });

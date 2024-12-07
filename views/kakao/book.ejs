@@ -111,7 +111,9 @@
             type : "get",
             url : "https://dapi.kakao.com/v3/search/book?target=title",
             data : {query : query, size:size, page},
-            headers: { "Authorization": "KakaoAK 54b6688221dead45827042df7e297c2d" },
+            headers : {
+                "Authorization" : "KakaoAK 0b91218c084a28358b5d595792a6932d"
+            },
             success : function(data){ //호출 성공시 실행.
                 console.log(data);
                 const temp=Handlebars.compile($("#temp_list").html())

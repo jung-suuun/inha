@@ -1,0 +1,70 @@
+<nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Navbar</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+                <a class="nav-link <%=title=='홈페이지'?'active':''%>" aria-current="page" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%=title=='도서검색'?'active':''%>" href="/kakao/book">도서검색</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%=title=='지역검색'?'active':''%>" href="/kakao/local">지역검색</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%=title=='블로그검색'?'active':''%>" href="/kakao/blog">블로그검색</a>
+            </li>
+            <li class="nav-item" id="cart">
+                <a class="nav-link <%=title=='장바구니'?'active':''%>" href="/users/cart">장바구니</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%=title=='게시판'||title=='글쓰기'||title=='게시글정보'||title=='게시글수정'?'active':''%>" href="/bbs">게시판</a>
+            </li>
+        </ul>
+        <div cla="d-flex">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item" id="login">
+                    <a class="nav-link active" aria-current="page" href="/users/login">로그인</a>
+                </li>
+                <li class="nav-item" id="mypage">
+                    <a class="nav-link active" aria-current="page" href="/users/mypage">마이페이지</a>
+                </li> 
+                <li class="nav-item" id="logout">
+                    <a class="nav-link active" aria-current="page" href="/users/logout">로그아웃</a>
+                </li>  
+            </ul>
+        </div>
+      </div>
+    </div>
+</nav>
+<script>
+    //로그인 성공하면 저장한 값을 여기로 전달
+    const email = sessionStorage.getItem("email");
+    const uid = sessionStorage.getItem("uid");
+
+    if(email){ //로그인 상태
+        //제이쿼리의 hide, show 기능
+        $("#login").hide();
+        $("#mypage, #logout, #cart").show();
+        $("#mypage a").html(email);
+    }
+    else{ //로그아웃 상태
+        $("#login").show();
+        $("#mypage, #logout, #cart").hide();
+    }
+
+    $("#logout").on("click", function(e){
+        //a 태그는 어디로 이동하려는 특성이 있기 때문에 동작을 막기
+        e.preventDefault();
+
+        //로그아웃 버튼 누르면 스토리지 초기화
+        if(confirm("정말로 로그아웃 하시겠습니까?")){
+            sessionStorage.clear();
+            location.href = "/"
+        } 
+    });
+</script>

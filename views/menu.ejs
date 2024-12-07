@@ -1,32 +1,38 @@
 <div class="mt-5">
-	<a href="/" class="me-3">Home</a>
-	<a href="/kakao/book" class="me-3">도서검색</a>
-	<a href="/kakao/local" class="me-3">지역검색</a>
-	<a href="/kakao/blog" class="me-3">블로그검색</a>
-	<a id="cart" href="/users/cart" class="me-3">장바구니</a>
-	<a id="login" href="/users/login" class="me-3" style="float:right">로그인</a>
-	<a id="logout" href="#" class="me-3" style="float:right">로그아웃</a>
-	<a id="mypage" href="/users/mypage" class="me-3" style="float:right">마이페이지</a>
-	<hr>
+    <a href="/" class="me-3">Home</a>
+    <a href="/kakao/book" class="me-3">도서검색</a>
+    <a href="/kakao/local" class="me-3">지역검색</a>
+    <a href="/kakao/blog" class="me-3">블로그검색</a>
+    <a id="cart" href="/users/cart" class="me-3">장바구니</a>
+    <a href="/bbs" class="me-3">게시판</a>
+    <a id="login" href="/users/login" class="me-3" style="float: right;">로그인</a>
+    <a id="logout" href="#" class="me-3" style="float: right;">로그아웃</a>
+    <a id="mypage" href="/users/mypage" class="me-3" style="float: right;">마이페이지</a>
+    <hr>
 </div>
 <script>
-	const email = sessionStorage.getItem("email");
-	const uid = sessionStorage.getItem("uid");
-	
-	if (email) {
-		$("#login").hide();
-		$("#mypage, #logout, #cart").show();
-		$("#mypage").html(email);
-	} else {
-		$("#login").show();
-		$("#mypage, #logout, #cart").hide();
-	}
+    //로그인 성공하면 저장한 값을 여기로 전달
+    const email = sessionStorage.getItem("email");
+    const uid = sessionStorage.getItem("uid");
+    if(email){ //로그인 상태
+        //제이쿼리의 hide, show 기능
+        $("#login").hide();
+        $("#mypage, #logout, #cart").show();
+        $("#mypage").html(email);
+    }
+    else{ //로그아웃 상태
+        $("#login").show();
+        $("#mypage, #logout, #cart").hide();
+    }
 
-	$("#logout").on("click", function (e){
-		e.preventDefault();
-		if(confirm("정말 로그아웃하시겠습니까?")) {
-			sessionStorage.clear();
-			location.href = "/";
-		}
-	});
+    $("#logout").on("click", function(e){
+        //a 태그는 어디로 이동하려는 특성이 있기 때문에 동작을 막기
+        e.preventDefault();
+
+        //로그아웃 버튼 누르면 스토리지 초기화
+        if(confirm("정말로 로그아웃 하시겠습니까?")){
+            sessionStorage.clear();
+            location.href = "/"
+        } 
+    })
 </script>

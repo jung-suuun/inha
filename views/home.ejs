@@ -1,100 +1,130 @@
-<div class="row">
+<!-- <div class="row">
     <h1 class="text-center my-5"><%=title%></h1>
-    <div class="row mb-2">
-        <form name="frm" class="col-6 col-md-4">
-            <div class="input-group">
-                <input name="query" class="form-control" value="자바">
-                <button class="btn btn-primary">검색</button>
-            </div>
-        </form>
+    <div class="col">
+      <h3>What is Lorem Ipsum?</h3>
+      <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
     </div>
-
-    <div id="div_list" class="row"></div>
-    <div class="text-center">
-        <button id="prev" class="btn btn-primary">이전</button>
-        <span id="page" class="mx-3">1</span>
-        <button id="next" class="btn btn-primary">다음</button>
+    <div class="col">
+      <h3>Why do we use it?</h3>
+      <p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).</p>
     </div>
-    <script id="temp_list" type="x-handlebars-template">
-        {{#each documents}}
-            <div class="col-6 col-lg-2 col-md-3 mb-3">
-                <div class="card">
-                    <div class="card-body">
-                        <a href="/kakao/book/info?title={{title}}&thumbnail={{thumbnail}}&price={{price}}&authors={{authors}}&&publisher={{publisher}}&isbn={{isbn}}&contents={{contents}}">
-                            <img src="{{funThumbnail thumbnail}}" width="100%" style="cursor:pointer">
-                        </a>
-                    </div>
-                    <div class="card-footer">
-                        <div class="ellipsis" style="font-size:12px;">{{title}}</div>
-                        <div>{{price}}</div>
-                    </div>
-                </div>
-            </div>
-        {{/each}}
-    </script>
-    <script>
-        Handlebars.registerHelper("funThumbnail", function (thumbnail){
-            if(thumbnail) return thumbnail;
-            else return "http://via.placeholder.com/120x180";
-        });
-    </script>
 </div>
+<div class="row">
+    <div class="col">
+      <h3>Where does it come from?</h3>
+      <p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.
+        The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. Sections 1.10.32 and 1.10.33 from "de Finibus Bonorum et Malorum" by Cicero are also reproduced in their exact original form, accompanied by English versions from the 1914 translation by H. Rackham.</p>
+    </div>
+    <div class="col">
+      <h3>Where can I get some?</h3>
+      <p>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable. If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary, making this the first true generator on the Internet. It uses a dictionary of over 200 Latin words, combined with a handful of model sentence structures, to generate Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore always free from repetition, injected humour, or non-characteristic words etc.</p>
+    </div>
+</div> -->
 
+<div class="row">
+  <h1 class="text-center my-5"><%=title%></h1>
+  <div class="row mb-2">
+    <form name="frm" class="col-6 col-md-4">
+      <div class="input-group">
+        <input name="query" class="form-control" value="자바">
+        <button class="btn btn-primary">검색</button>
+      </div>
+    </form>
+  </div>
+  <div id="div_list" class="row"></div>
+  <div class="text-center">
+    <button id="prev" class="btn btn-primary">이전</button>
+    <span id="page" class="mx-3">1</span>
+    <button id="next" class="btn btn-primary">다음</button>
+  </div>
+  <script id="temp_list" type="x-handlebars-template">
+    {{#each documents}}
+      <div class="col-6 col-md-3 col-lg-2 mb-3">
+        <div class="card">
+          <div class="card-body">
+            <a href="/kakao/book/info?title={{title}}&thumbnail={{thumbnail}}&price={{price}}&authors={{authors}}&publisher={{publisher}}&isbn={{isbn}}&contents={{contents}}">
+              <img src="{{funThumbnail thumbnail}}" width="100%">
+            </a>
+          </div>
+          <div class="card-footer" style="font-size:12px;">
+            <div class="ellipsis">{{title}}</div>
+            <div>{{price}}원</div>
+          </div>
+        </div>
+      </div>
+    {{/each}}
+  </script>
+  <script>
+    //위에서 함수를 실행함 "funThumbnail" 부분이 비워져 있어도 빈칸 채울줄 알아야 함. 썸네일 사진이 없으면 더미 이미지를 넣기 위함
+    Handlebars.registerHelper("funThumbnail", function(thumbnail){
+      if(thumbnail) return thumbnail;
+      else return "http://via.placeholder.com/120x180";
+    });
+  </script>
+</div>
 <script>
-    let query = "자바";
-    let size = 12;
-    let page = 1;
-    getList();
 
-    $(frm).on("submit", function (e){
-        e.preventDefault();
-        query = $(frm.query).val();
-        if(query == "") {
-            alert("검색어를 입력하세요!");
-        } else {
-            getList();
+  let query = "자바";
+  let size = 12;
+  let page = 1;
+
+  getList();
+
+
+  $(frm).on("submit", function(e){
+    e.preventDefault();
+    query = $(frm.query).val();
+    if(query==""){
+      alert("검색어를 입력하세요!")
+    }
+    else{
+      page = 1;
+      getList();
+    }
+  });
+
+  $("#div_list").on("click", "img", function(){
+    location.href="/kakao/book/info";
+  });
+
+  $("#next").on("click", function(){
+    page++;
+    getList();
+  });
+  $("#prev").on("click", function(){
+    page--;
+    getList();
+  });
+  //도서목록 함수
+  function getList(){
+    //카카오 API문서를 보면 url, query, Authorization등등 어떻게 넣어줘야 하는지 기술되어있음.
+    // $는 jquery 딸깍
+    $.ajax({
+        //get은 카카오API문서에 호출방식이 get으로 적혀있기 때문.
+        type : "get",
+        url : "https://dapi.kakao.com/v3/search/book?target=title",
+        data : {query : query, size:size, page}, //query 에는 검색어가 들어감
+        headers : {
+            "Authorization" : "KakaoAK 0b91218c084a28358b5d595792a6932d"
+        },
+        success : function(data){ //호출 성공시 실행.
+            console.log(data);
+            const temp=Handlebars.compile($("#temp_list").html());
+            $("#div_list").html(temp(data));
+
+            const last = Math.ceil(data.meta.pageable_count/size)
+            $("#page").html(`${page}/${last}`);
+
+            if(page == 1)
+              $("#prev").attr("disabled", true);
+            else
+              $("#prev").attr("disabled", false);
+
+            if(data.meta.is_end)
+              $("#next").attr("disabled", true);
+            else
+              $("#next").attr("disabled", false);
         }
     });
-
-    $("#div_list").on("click", "img", function (){
-        location.href = "/kakao/book/info";
-    });
-
-    $("#next").on("click", function (){
-        page++;
-        getList();
-    });
-
-    $("#prev").on("click", function (){
-        page--;
-        getList();
-    });
-
-    function getList() {
-        $.ajax({
-            type: "get",
-            url: `https://dapi.kakao.com/v3/search/book?target=title&size=${size}&query=${query}&page=${page}`,
-            headers: { "Authorization": "KakaoAK 54b6688221dead45827042df7e297c2d" },
-            success: function (data) {
-                const temp = Handlebars.compile($("#temp_list").html());
-                $("#div_list").html(temp(data));
-                $("#page").html(page);
-
-                const last = Math.ceil(data.meta.pageable_count / size);
-                $("#page").html(`${page}/${last}`);
-
-                if(page == 1) {
-                    $("#prev").attr("disabled", true);
-                } else {
-                    $("#prev").attr("disabled", false);
-                }
-
-                if(data.meta.is_end) {
-                    $("#next").attr("disabled", true);
-                } else {
-                    $("#next").attr("disabled", false);           
-                }
-            }
-        });
-    }
+  }
 </script>
